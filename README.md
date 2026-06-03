@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The purpose of this project is to model a real-world machine learning challenge — optimising unknown functions using limited information. The objective is to demonstrate how optimisation is approached in research, using exploration, evidence and iterative strategy refinement over 13 weeks.
+The purpose of this project is to model a real-world machine learning challenge by optimising unknown functions using limited information. The objective is to demonstrate how optimisation is approached in research, using exploration, evidence and iterative strategy refinement over 13 weeks.
 
 The project follows a Bayesian optimisation framework in which eight unknown black-box functions must be maximised. The equations and internal logic of these functions are not known. Only the output of each query is returned, making this a true black-box setting.
 
