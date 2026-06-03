@@ -68,7 +68,7 @@
 
 **Key decisions**:
 - F4: LOO RMSE of 1.437 on full history flagged as problematic - motivated later Dynamic BO development
-- F7: HEBO introduced - NeurIPS 2020 BBO Challenge winner, handles suspected log-scale hyperparameters through per-dimension input warping
+- F7: HEBO introduced - NeurIPS 2020 BBO Challenge winner, handles suspected log-scale hyperparameters through automatic per-dimension input scaling
 - F8: CMA-ES introduced - tight local exploitation anchored to confirmed best point with sigma0 = min_range/6
 
 **Outcome**: SVR became primary surrogate for F4 and F6. HEBO and CMA-ES consistently outperformed GP/SVR for F7 and F8 respectively.
@@ -126,7 +126,7 @@
 | F4 | SVR | 0.125 | Region window - 8 positive observations |
 | F5 | GP | 320 | High RMSE - complex landscape with two distinct peaks |
 | F6 | SVR | 0.213 | GP hitting x1 length scale bound |
-| F7 | HEBO | 0.411 (GP) | HEBO overrides standard GP - better warping |
+| F7 | HEBO | 0.411 (GP) | HEBO overrides standard GP - better per-dimension scaling |
 | F8 | GP | 0.141 | CMA-ES wins selection - GP/RF/NN excluded by range check |
 
 ---
