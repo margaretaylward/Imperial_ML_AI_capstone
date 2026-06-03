@@ -9,9 +9,6 @@
 
 **Type**: Sequential model-based optimisation (SMBO) with per-function adaptive configuration
 
-**Version**: Week 10 (final development phase)
-
-**Author**: Postgraduate student, BBO Capstone Project
 
 **Summary**: An iterative Bayesian optimisation pipeline that maintains eight independent surrogate models - one per black-box function  each with function-specific acquisition functions, candidate generation strategies, range validation, and model selection via Leave-One-Out cross-validation. The pipeline evolved over ten weeks from global exploration to tight exploitation, incorporating specialist techniques including HEBO, CMA-ES, Dynamic BO, and model-free weighted centroid as evidence accumulated.
 
@@ -88,9 +85,9 @@
 
 **F5 UCB Exploration**: Competitor analysis revealed another student achieved Y=8585 in week 3 - confirming a much higher global optimum existed. UCB with beta=5 across unexplored x1=0.40-0.90, x2=0.20-0.70 region returned Y=4039 - new best, confirming the local optimum failure. GP subsequently pointed consistently toward x1≈0.95, x2≈0.74 as potentially higher.
 
-**F6 Weighted Centroid**: Model-free candidate added - top-k results weighted by 1/|Y|, weighted average taken as candidate. Inspired by competitor who used this approach to crack F6 after 8 weeks of GP failure. Added alongside GP and SVR rather than replacing them.
+**F6 Weighted Centroid**: Model-free candidate added - top-k results weighted by 1/|Y|, weighted average taken as candidate.  Added alongside GP and SVR rather than replacing them.
 
-**F1 Asymmetric bias**: Week 9 returned new best at x2=0.7257, improving on previous best at x2=0.7266. Asymmetric noise distribution introduced. x2 biased toward lower values, to explore the confirmed direction while acknowledging that x1 also changed between the two best results, making the directional signal a hypothesis rather than a confirmed finding.
+**F1 Directional Search Adjustment**: Week 9 returned a new best at x2=0.7257, marginally improving on the previous best at x2=0.7266. Since x1 also shifted between the two results, the improvement could not be attributed to x2 alone. The search was deliberately weighted toward lower x2 values as a testable hypothesis, while acknowledging both dimensions may have contributed to the improvement.
 
 **Outcome**: 6 new bests out of 8 functions in week 9. F5 course correction confirmed. F4 Dynamic BO validated.
 
