@@ -12,9 +12,6 @@ This dataset was created as part of a Black-Box Optimisation (BBO) capstone proj
 
 The dataset supports the development, evaluation, and comparison of Bayesian optimisation strategies including Gaussian Process (GP) surrogates, Support Vector Regression (SVR), Random Forest (RF), Neural Networks (NN), HEBO, and Optuna-based samplers (CMA-ES, TPE). It documents the full optimisation trajectory for each function, enabling analysis of exploration-exploitation trade-offs, surrogate model accuracy, and acquisition function behaviour across diverse function types.
 
-**Who created it and for what purpose?**
-
-Created by a student as part of a structured academic assignment. The dataset serves both as the primary experimental record and as evidence of iterative strategy development for assessment purposes.
 
 ---
 
