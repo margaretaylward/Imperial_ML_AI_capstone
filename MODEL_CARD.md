@@ -93,20 +93,22 @@
 
 ---
 
+
+
 ## Performance
 
-### Best Results Achieved (Week 10)
+### Best Results Achieved (Week 13 — Final)
 
 | Function | Best Y | Week achieved | Method |
 |----------|--------|--------------|--------|
-| F1 | 7.89e-15 | Week 10 | Proximity search, asymmetric x2 bias |
-| F2 | 0.7392 | Week 4 | GP EI near confirmed peak |
-| F3 | −0.00600 | Week 10 | SVR uniform, fixed x1/x2, x3=0.472 |
-| F4 | 0.7097 | Week 10 | SVR with Dynamic BO region window |
-| F5 | 4039.81 | Week 10 | UCB exploration of new region |
-| F6 | −0.1615 | Week 10 | SVR tightened ranges |
-| F7 | 2.9071 | Week 7 | HEBO with tightened x2/x5/x6 |
-| F8 | 9.8799 | Week 10 | CMA-ES sigma0=0.02 |
+| F1 | 2.828936e-14 | Week 13 | Proximity search, confirmed lower x2 trajectory |
+| F2 | 0.739239 | Week 4 | GP EI near confirmed peak — noisy function, best held |
+| F3 | −0.006004 | Week 10 | SVR uniform, fixed x1/x2, x3=0.472 confirmed peak |
+| F4 | 0.723045 | Week 12 | SVR local with Dynamic BO region window |
+| F5 | 8662.405001 | Week 12 | GP local following gradient to boundary corner [1,1,1,1] |
+| F6 | −0.142570 | Week 13 | Weighted centroid — noise confirmed by duplicate coordinate |
+| F7 | 2.924410 | Week 11 | HEBO override — input warping outperformed GP/SVR |
+| F8 | 9.961345 | Week 11 | GP gamble week 11, CMA-ES exploitation weeks 12-13 |Claude Fable 5 is currently unavailable.Learn more(opens in new tab)
 
 ### Metrics Used
 
