@@ -10,7 +10,7 @@
 **Type**: Sequential model-based optimisation (SMBO) with per-function adaptive configuration
 
 
-**Summary**: An iterative Bayesian optimisation pipeline that maintains eight independent surrogate models - one per black-box function  each with function-specific acquisition functions, candidate generation strategies, range validation, and model selection via Leave-One-Out cross-validation. The pipeline evolved over ten weeks from global exploration to tight exploitation, incorporating specialist techniques including HEBO, CMA-ES, Dynamic BO, and model-free weighted centroid as evidence accumulated.
+**Summary**: An iterative Bayesian optimisation pipeline that maintains eight independent surrogate models - one per black-box function  each with function-specific acquisition functions, candidate generation strategies, range validation, and model selection via Leave-One-Out cross-validation. The pipeline evolved over thirtenn weeks from global exploration to tight exploitation, incorporating specialist techniques including HEBO, CMA-ES, Dynamic BO, and model-free weighted centroid as evidence accumulated.
 
 ---
 
@@ -79,12 +79,6 @@
 
 **Techniques**: Dynamic BO region window (F4), UCB exploration (F5), weighted centroid model-free candidate (F6), range validation on all candidates, asymmetric bias search (F1).
 
-**Key decisions**:
-
-**F4 Dynamic BO**: The windowing mechanism for Function 4 underwent two iterations before converging on the region-based filter used in the final rounds. An initial time-based sliding window (k=10 most recent observations) was implemented following Bogunovic et al. (2016) but failed in practice because recent exploratory queries outside the positive region introduced Y=-23 negatives into the fitting window. With only 10 observations and a Y range spanning from -23 to +0.72, the surrogate was fitting an average of multiple landscape configurations rather than the current one and a LOO RMSE of 5.204 confirmed this failure.
-The region-based filter replaced the time window: only observations within a Euclidean distance threshold of the confirmed best point were included in surrogate fitting, regardless of query order. The threshold of 0.09 was determined mathematically by inspecting the nearest neighbour distance distribution in the ranked results: all 9 positive observations clustered naturally within this distance from the confirmed best, while all negative observations fell beyond dist=0.25. This provided a natural boundary that separated the consistent positive landscape from the stale exploratory data. The transition was validated quantitatively - LOO RMSE dropped from 1.437 on full history to 0.125 on the region-filtered window, an 87% reduction. No formal optimisation of the threshold was performed; the cluster structure in the data made the appropriate boundary evident. Future iterations could formalise this by fitting a Gaussian Mixture Model to the observation landscape and using cluster membership as the window criterion rather than a fixed distance threshold.
-
-
 **F5 UCB Exploration**: Competitor analysis revealed another student achieved Y=8585 in week 3 - confirming a much higher global optimum existed. UCB with beta=5 across unexplored x1=0.40-0.90, x2=0.20-0.70 region returned Y=4039 - new best, confirming the local optimum failure. GP subsequently pointed consistently toward x1≈0.95, x2≈0.74 as potentially higher.
 
 **F6 Weighted Centroid**: Model-free candidate added - top-k results weighted by 1/|Y|, weighted average taken as candidate.  Added alongside GP and SVR rather than replacing them.
@@ -93,8 +87,27 @@ The region-based filter replaced the time window: only observations within a Euc
 
 **Outcome**: 6 new bests out of 8 functions in week 9. F5 course correction confirmed. F4 Dynamic BO validated.
 
----
 
+### Weeks 11–13: Convergence and Final Exploitation
+
+**Techniques**: Pure exploitation across all functions. CMA-ES, HEBO, and 
+proximity search maintained per function. Manual overrides documented where 
+model evidence conflicted with empirical data.
+
+**Key decisions**: F5 followed the GP gradient toward the boundary corner 
+[1,1,1,1], delivering three consecutive new bests (4849, 8464, 8662), thus
+validating the week 10 UCB pivot. F8 benefited from a deliberate GP gamble 
+in week 11 (LOO RMSE 0.089, best recorded) returning 9.9613, with CMA-ES 
+anchoring to the new peak for the remaining weeks. F6 confirmed genuine 
+observation noise on the final query — identical coordinates returning 
+−0.3056 in week 11 and −0.1425 in week 13.
+
+**Outcome**: 5 new bests across weeks 12 and 13. The pipeline's LOO 
+cross-validation, range validation and plausibility checks proved reliable 
+enough to trust in the final weeks without further structural changes.
+
+
+---
 
 
 ## Performance
@@ -110,7 +123,7 @@ The region-based filter replaced the time window: only observations within a Euc
 | F5 | 8662.405001 | Week 12 | GP local following gradient to boundary corner [1,1,1,1] |
 | F6 | −0.142570 | Week 13 | Weighted centroid — noise confirmed by duplicate coordinate |
 | F7 | 2.924410 | Week 11 | HEBO override — input warping outperformed GP/SVR |
-| F8 | 9.961345 | Week 11 | GP gamble week 11, CMA-ES exploitation weeks 12-13 |Claude Fable 5 is currently unavailable.Learn more(opens in new tab)
+| F8 | 9.961345 | Week 11 | GP gamble week 11, CMA-ES exploitation weeks 12-13 |
 
 ### Metrics Used
 
@@ -155,11 +168,47 @@ The region-based filter replaced the time window: only observations within a Euc
 
 **Dimensionality**: With 49 observations across 8 dimensions (F8), the dataset is significantly under-sampled relative to dimensionality. Standard practice suggests 10-30 observations per dimension for reliable GP generalisation - F8 has approximately 6 per dimension.
 
+### Proximity Search Calibration at Length Scale Boundaries 
+When a Gaussian Process length scale hits its upper bound, the GP has learned 
+to treat that dimension as flat, so moving along it makes no meaningful difference 
+to the predicted output. For Function 1, where Y values span approximately 17 
+orders of magnitude, a signed log transform was first applied to compress the 
+range to a GP-tractable scale. Even after transformation, the GP's length scale 
+on x2 remained large because the peak is extremely narrow:  the function drops 
+off so sharply around the true source that the GP's smooth kernel cannot 
+represent it accurately at sub-femtometre precision.
+
+In this regime proximity search was adopted as a structurally justified fallback 
+rather than an arbitrary override. The calibration logic was as follows: when 
+LOO RMSE exceeds a meaningful fraction of the Y range of interest, surrogate 
+predictions are unreliable as absolute guides. For Function 1, LOO RMSE of 
+approximately 2 units in transformed space corresponds to multiple orders of 
+magnitude in raw Y space, making EI scores meaningless for distinguishing 
+candidates within the confirmed neighbourhood. Proximity to the empirically 
+confirmed best point maximises the probability of querying near the true optimum 
+without requiring reliable absolute predictions.
+
+For Function 8, x8 consistently hit a length scale of 1000 throughout the project, consistent with 
+the brief's suggestion of an encoded categorical variable where the smoothness 
+assumption breaks down at category boundaries. In this case the range validation 
+check served the same structural role as proximity search did for F1, 
+preventing the surrogate from acting on a dimension it could not reliably model, 
+and deferring instead to CMA-ES whose covariance-learning approach does not 
+assume smoothness across all dimensions equally.
+
+### Function-Specific Strategy Decisions
+
+**F4 Dynamic BO**: The windowing mechanism for Function 4 underwent two iterations before converging on the region-based filter used in the final rounds. An initial time-based sliding window (k=10 most recent observations) was implemented following Bogunovic et al. (2016) but failed in practice because recent exploratory queries outside the positive region introduced Y=-23 negatives into the fitting window. With only 10 observations and a Y range spanning from -23 to +0.72, the surrogate was fitting an average of multiple landscape configurations rather than the current one and a LOO RMSE of 5.204 confirmed this failure.
+The region-based filter replaced the time window: only observations within a Euclidean distance threshold of the confirmed best point were included in surrogate fitting, regardless of query order. The threshold of 0.09 was determined mathematically by inspecting the nearest neighbour distance distribution in the ranked results: all 9 positive observations clustered naturally within this distance from the confirmed best, while all negative observations fell beyond dist=0.25. This provided a natural boundary that separated the consistent positive landscape from the stale exploratory data. The transition was validated quantitatively - LOO RMSE dropped from 1.437 on full history to 0.125 on the region-filtered window, an 87% reduction. No formal optimisation of the threshold was performed; the cluster structure in the data made the appropriate boundary evident. Future iterations could formalise this by fitting a Gaussian Mixture Model to the observation landscape and using cluster membership as the window criterion rather than a fixed distance threshold.
+
+
+
+
 ### Failure Modes
 
 **Premature exploitation** (demonstrated F5): High early returns anchored the search to a local optimum. UCB exploration with high beta is the recommended mitigation but was applied too late.
 
-**Surrogate hallucination** (mitigated by plausibility check): GP occasionally predicts implausibly high values in unexplored regions. The 70%-130% plausibility bound catches the most outlyers.
+**Surrogate hallucination** (mitigated by plausibility check): GP occasionally predicts implausibly high values in unexplored regions. The 70%-130% plausibility bound catches the most outliers.
 
 **Boundary saturation** (observed F7, F8): SVR and GP occasionally suggest candidates with multiple dimensions simultaneously at boundary values - a sign of extrapolation rather than genuine landscape modelling. Range validation catches this when it pushes outside confirmed bounds.
 
