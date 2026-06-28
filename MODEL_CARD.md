@@ -138,16 +138,16 @@ enough to trust in the final weeks without further structural changes.
 
 ### Surrogate Performance by Function
 
-| Function | Primary surrogate | LOO RMSE (week 10) | Notes |
-|----------|-----------------|-------------------|-------|
-| F1 | Proximity search | N/A | GP unreliable at sub-1e-15 scale |
-| F2 | Proximity search | 0.187 (GP) | Noisy function - proximity more defensible |
-| F3 | GP | 0.076 | x2 length scale hitting bound - GP ignoring x2 |
-| F4 | SVR | 0.125 | Region window - 8 positive observations |
-| F5 | GP | 320 | High RMSE - complex landscape with two distinct peaks |
-| F6 | SVR | 0.213 | GP hitting x1 length scale bound |
-| F7 | HEBO | 0.411 (GP) | HEBO overrides standard GP - better per-dimension scaling |
-| F8 | GP | 0.141 | CMA-ES wins selection - GP/RF/NN excluded by range check |
+| Function | Primary surrogate | LOO RMSE (final) | Notes |
+|----------|-----------------|-----------------|-------|
+| F1 | Proximity search | N/A | GP unreliable at sub-1e-14 scale — signed log transform applied |
+| F2 | Proximity search | 0.177 (GP) | Noisy function — WhiteKernel σ²≈0.037, proximity more defensible than EI |
+| F3 | GP | 0.083 | x1/x2 length scales hitting bound — GP correctly ignoring fixed dimensions |
+| F4 | SVR | 0.112 | Region window — 10 positive observations, LOO improved from 1.437 to 0.112 |
+| F5 | GP | 395 | High RMSE reflects complex two-region landscape — plausibility override active |
+| F6 | SVR | 0.210 | GP hitting x1 length scale bound — observation noise confirmed on final query |
+| F7 | HEBO | 0.306 (GP) | GP/SVR failed range check on x4 every week — HEBO only eligible candidate |
+| F8 | GP | 0.089 | Best LOO recorded — CMA-ES selected over GP for final submissions |
 
 ---
 
