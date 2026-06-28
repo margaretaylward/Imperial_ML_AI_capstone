@@ -103,7 +103,7 @@ Several advanced techniques were introduced as limitations of the standard GP be
 
 - [Dataset Datasheet](DATASHEET.md) — Motivation, composition, collection process, preprocessing, distribution and maintenance
 - [Model Card](MODEL_CARD.md) — Overview, intended use, strategy details, performance, assumptions and limitations, ethical considerations
-- [Personal reflection][My_journey.MD] - A personal summary and reflection on how the pipeline evolved and what influenced strategies
+- [Personal reflection](My_journey.MD) - A personal summary and reflection on how the pipeline evolved and what influenced strategies
 
 ---
 
