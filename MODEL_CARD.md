@@ -85,6 +85,9 @@
 
 **F1 Directional Search Adjustment**: Week 9 returned a new best at x2=0.7257, marginally improving on the previous best at x2=0.7266. Since x1 also shifted between the two results, the improvement could not be attributed to x2 alone. The search was deliberately weighted toward lower x2 values as a testable hypothesis, while acknowledging both dimensions may have contributed to the improvement.
 
+**F4 Dynamic BO**: The windowing mechanism for Function 4 underwent two iterations before converging on the region-based filter used in the final rounds. An initial time-based sliding window (k=10 most recent observations) was implemented following Bogunovic et al. (2016) but failed in practice because recent exploratory queries outside the positive region introduced Y=-23 negatives into the fitting window. With only 10 observations and a Y range spanning from -23 to +0.72, the surrogate was fitting an average of multiple landscape configurations rather than the current one and a LOO RMSE of 5.204 confirmed this failure.
+The region-based filter replaced the time window: only observations within a Euclidean distance threshold of the confirmed best point were included in surrogate fitting, regardless of query order. The threshold of 0.09 was determined mathematically by inspecting the nearest neighbour distance distribution in the ranked results: all 9 positive observations clustered naturally within this distance from the confirmed best, while all negative observations fell beyond dist=0.25. This provided a natural boundary that separated the consistent positive landscape from the stale exploratory data. The transition was validated quantitatively - LOO RMSE dropped from 1.437 on full history to 0.125 on the region-filtered window, an 87% reduction. No formal optimisation of the threshold was performed; the cluster structure in the data made the appropriate boundary evident. Future iterations could formalise this by fitting a Gaussian Mixture Model to the observation landscape and using cluster membership as the window criterion rather than a fixed distance threshold.
+
 **Outcome**: 6 new bests out of 8 functions in week 9. F5 course correction confirmed. F4 Dynamic BO validated.
 
 
@@ -195,13 +198,6 @@ check served the same structural role as proximity search did for F1,
 preventing the surrogate from acting on a dimension it could not reliably model, 
 and deferring instead to CMA-ES whose covariance-learning approach does not 
 assume smoothness across all dimensions equally.
-
-### Function-Specific Strategy Decisions
-
-**F4 Dynamic BO**: The windowing mechanism for Function 4 underwent two iterations before converging on the region-based filter used in the final rounds. An initial time-based sliding window (k=10 most recent observations) was implemented following Bogunovic et al. (2016) but failed in practice because recent exploratory queries outside the positive region introduced Y=-23 negatives into the fitting window. With only 10 observations and a Y range spanning from -23 to +0.72, the surrogate was fitting an average of multiple landscape configurations rather than the current one and a LOO RMSE of 5.204 confirmed this failure.
-The region-based filter replaced the time window: only observations within a Euclidean distance threshold of the confirmed best point were included in surrogate fitting, regardless of query order. The threshold of 0.09 was determined mathematically by inspecting the nearest neighbour distance distribution in the ranked results: all 9 positive observations clustered naturally within this distance from the confirmed best, while all negative observations fell beyond dist=0.25. This provided a natural boundary that separated the consistent positive landscape from the stale exploratory data. The transition was validated quantitatively - LOO RMSE dropped from 1.437 on full history to 0.125 on the region-filtered window, an 87% reduction. No formal optimisation of the threshold was performed; the cluster structure in the data made the appropriate boundary evident. Future iterations could formalise this by fitting a Gaussian Mixture Model to the observation landscape and using cluster membership as the window criterion rather than a fixed distance threshold.
-
-
 
 
 ### Failure Modes
