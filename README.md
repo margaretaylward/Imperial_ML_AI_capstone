@@ -50,26 +50,38 @@ Several advanced techniques were introduced as limitations of the standard GP be
 - **Weighted centroid** model-free candidate added for F6 — inspired by competitor analysis showing model-free approaches can outperform GP in certain regimes
 - **Signed log transform** applied to F1 Y values — compresses 17 orders of magnitude to a scale the GP can model meaningfully
 
+  ### Final Phase (Weeks 11–13): Convergence and Final Exploitation
+  The final weeks focused on tight exploitation of confirmed regions across all functions, with deliberate exploration maintained only where the data justified it:
+
+- **F5** — GP gradient followed toward boundary corner [1,1,1,1] across three consecutive weeks, delivering 4849, 8464 and 8662 — the project's largest single improvement arc
+- **F8** — Deliberate GP gamble in week 11 (LOO RMSE 0.089, best ever recorded) returned a new best of 9.9613, with CMA-ES anchoring to the new confirmed peak for the remaining weeks
+- **F1** — Confirmed lower x2 directional bias delivered four consecutive new bests in the final phase
+- **F4** — Dynamic BO region window delivered five consecutive weeks of new or near-best results
+- **F6** — Final query confirmed genuine observation noise after identical coordinates returned Y=−0.3056 in week 11 and Y=−0.1425 in week 13 — direct empirical evidence of function stochasticity
+- **F3, F7** — Convergence confirmed through diminishing improvements; final submissions repeated nearest evidence-backed coordinates
+
 ### Key Lessons
 - Premature exploitation on F5 caused 6 weeks of queries in a local optimum — high early returns anchored the search incorrectly
 - Dynamic functions (F4) require specialised windowing — fitting on full history includes stale landscape configurations
 - LOO cross-validation provides objective, reproducible surrogate selection — critical for principled decision-making
 - Range validation and plausibility checks prevent surrogate hallucinations from influencing submissions
+- Boundary testing in early rounds is a low-cost, high-value diagnostic — submitting near the corners of the input space in weeks 1–2 would have identified F5's true peak region immediately
+- A single regression near a confirmed peak is noise, not a signal to change strategy — the data must consistently argue for a direction change before committing to one
 
 ---
 
-## Results Summary (Week 10)
+## Final Results Summary (Week 13)
 
-| Function | Best Y | Strategy that achieved it |
-|----------|--------|--------------------------|
-| F1 | 7.89e-15 | Proximity search, asymmetric x2 bias |
-| F2 | 0.7392 | Proximity search near confirmed peak |
-| F3 | −0.00600 | SVR uniform, fixed x1/x2, lower x3 |
-| F4 | 0.7097 | SVR with Dynamic BO region window |
-| F5 | 4039.81 | UCB exploration of new region |
-| F6 | −0.1615 | SVR with tightened confirmed ranges |
-| F7 | 2.9071 | HEBO with tightened x2/x5/x6 bounds |
-| F8 | 9.8799 | CMA-ES anchored to confirmed best |
+| Function | Best Y | Week achieved | Method |
+|----------|--------|--------------|--------|
+| F1 | 2.828936e-14 | Week 13 | Proximity search, confirmed lower x2 trajectory |
+| F2 | 0.739239 | Week 4 | GP EI near confirmed peak — noisy function, best held |
+| F3 | −0.006004 | Week 10 | SVR uniform, fixed x1/x2, x3=0.472 confirmed peak |
+| F4 | 0.723045 | Week 12 | SVR local with Dynamic BO region window |
+| F5 | 8662.405001 | Week 12 | GP local following gradient to boundary corner [1,1,1,1] |
+| F6 | −0.142570 | Week 13 | Weighted centroid — noise confirmed by duplicate coordinate |
+| F7 | 2.924410 | Week 11 | HEBO override — input warping outperformed GP/SVR |
+| F8 | 9.961345 | Week 11 | GP gamble week 11, CMA-ES exploitation weeks 12–13 |
 
 ---
 
@@ -91,6 +103,7 @@ Several advanced techniques were introduced as limitations of the standard GP be
 
 - [Dataset Datasheet](DATASHEET.md) — Motivation, composition, collection process, preprocessing, distribution and maintenance
 - [Model Card](MODEL_CARD.md) — Overview, intended use, strategy details, performance, assumptions and limitations, ethical considerations
+- [Personal reflection][My_journey.MD] - A personal summary and reflection on how the pipeline evolved and what influenced strategies
 
 ---
 
