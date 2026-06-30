@@ -39,18 +39,22 @@ The dataset contains query records for 8 black-box functions across up to 13 wee
 
 **What is the size of the dataset?**
 
-As of week 10, the dataset contains approximately 340 records in total across all 8 functions (approximately 28–49 records per function depending on early exploration queries). The dataset grows by 8 records per week (one per function).
+As of week 13 (final), the dataset contains approximately 415 records in 
+total across all 8 functions (between 28 and 52 records per function 
+depending on early exploration queries and the number of initial data 
+points provided). The dataset grew by 8 records per week across 13 weeks, 
+with one query per function per round.
 
 **What is the format?**
 
-Data is stored as structured observations within Jupyter notebooks (`.ipynb`) and Python scripts (`.py`). Each function's data is loaded as NumPy arrays:
+Data is stored as structured observations within Jupyter notebooks (`.ipynb`). Each function's data is loaded as NumPy arrays:
 
 ```python
 X  # shape (n, dim) - input vectors
 Y  # shape (n,)     - scalar outputs
 ```
 
-No external file format (CSV, JSON) is used - data is embedded directly in the notebook environment provided by the course.
+Input and output files in the form of (npy) are used - data is embedded directly in the these weekly on top of initial data provided by the course.
 
 **Are there any gaps or missing values?**
 
@@ -73,7 +77,7 @@ Queries were generated through a weekly iterative process:
 
 **What strategy was used?**
 
-Strategy evolved across the 12 weeks:
+Strategy evolved across the 13 weeks:
 
 - **Weeks 1–3**: Global exploration using Latin Hypercube Sampling across the full [0,1]^d space
 - **Weeks 4–7**: Exploitation of confirmed good regions with tightening search bounds per function
@@ -82,7 +86,7 @@ Strategy evolved across the 12 weeks:
 
 **Over what time frame?**
 
-Weeks 1–13 of the academic term, with one submission round per week. Each weekly iteration involved approximately 2–4 hours of analysis, code development, and strategy refinement.
+Weeks 1–13 of the academic term, with one submission round per week. Each weekly iteration involved approximately 4-8 hours of analysis, code development, and strategy refinement.
 
 **Was there any sampling bias?**
 
@@ -121,7 +125,7 @@ Yes, function-specific transformations were applied:
 
 **Where is the dataset available?**
 
-The dataset is available within the course Jupyter notebook environment provided by the institution. Selected observations, analysis scripts, and documentation are maintained in a private GitHub repository created for this project.
+The dataset is available within a Jupyter notebook environment. Selected observations, analysis scripts, and documentation are maintained in a GitHub repository created for this project.
 
 **What are the terms of use?**
 
@@ -139,18 +143,95 @@ Yes, the dataset grows by 8 records per week until the end of week 13. After the
 
 ## Additional Notes
 
-**Surrogate model accuracy by function (LOO RMSE, week 10)**
+**Surrogate model accuracy by function (LOO RMSE, final week)**
 
-| Function | Best surrogate | LOO RMSE | Notes |
-|----------|---------------|----------|-------|
-| F1 | Proximity search | N/A | GP unreliable at sub-1e-15 precision |
-| F2 | Proximity search | 0.187 (GP) | Noisy function - model predictions unreliable |
-| F3 | GP | 0.076 | x2 consistently ignored by GP (large length scale) |
-| F4 | SVR | 0.125 | Region window improves LOO from 1.437 |
-| F5 | GP | 320 | High RMSE reflects complex landscape |
-| F6 | SVR | 0.213 | GP hitting length scale bound on x1 |
-| F7 | HEBO | 0.411 (GP) | HEBO input warping outperforms standard GP |
-| F8 | GP | 0.141 | x8 length scale hitting 1000 - likely categorical |
+| Function | Best surrogate | LOO RMSE (final) | Notes |
+|----------|---------------|-----------------|-------|
+| F1 | Proximity search | N/A | GP unreliable at sub-1e-14 scale — signed log transform applied |
+| F2 | Proximity search | 0.177 (GP) | Noisy function — WhiteKernel σ²≈0.037, proximity more defensible |
+| F3 | GP | 0.083 | x1/x2 length scales hitting bound — GP ignoring fixed dimensions |
+| F4 | SVR | 0.112 | Region window — 10 positive observations, LOO improved from 1.437 |
+| F5 | GP | 395 | High RMSE reflects complex two-region landscape |
+| F6 | SVR | 0.210 | GP hitting x1 length scale bound — noise confirmed on final query |
+| F7 | HEBO | 0.306 (GP) | GP/SVR failed range check on x4 every week |
+| F8 | GP | 0.089 | Best LOO recorded — CMA-ES selected over GP for final submissions |
+
+---
+
+## Reflections and Lessons Learned
+
+**Confidence in global maximum by function**
+
+| Function | Confidence | Reasoning |
+|----------|-----------|-----------|
+| F1 | Low | Higher sources revealed by peer comparisons — best result of 2.83e-14 reflects a secondary signal, not the primary source |
+| F2 | Moderate | Peak at [0.8566, 0.3878] well confirmed but noisy function means true underlying value is uncertain — best of 0.7392 may reflect a favourable noise draw |
+| F3 | High | Two independent queries within dist=0.0002 of x3=0.472 both returned -0.00600 — peak confirmed, though anomalous result at dist=0.000088 suggests possible local sensitivity |
+| F4 | Moderate | Dynamic function means landscape shifts weekly — best of 0.7230 reflects current confirmed positive region but true optimum may vary |
+| F5 | High | Boundary corner [1,1,1,1] confirmed with result of 8662, true peak confirmed |
+| F6 | Moderate | Best of -0.1425 achieved on final query — noise confirmed by duplicate coordinates returning different values, so true underlying value at confirmed peak remains uncertain |
+| F7 | High | Three consecutive results above 2.90 within dist=0.020 of each other — flat peak well confirmed, HEBO converged reliably |
+| F8 | Moderate | Strong local maximum confirmed at 9.9613, consistent with brief's acknowledgement that global optimisation is hard at 8 dimensions — true global optimum unknown |
+
+**What would be done differently with a fresh start**
+
+- **Boundary diagnostic in week 1**: Submit near [0.999...] and [0.001...] 
+  for every function in the first two weeks. This would have identified F5's 
+  true peak at the boundary corner in week 1 rather than week 11, saving 
+  approximately six weeks of queries in a local optimum.
+
+- **Repeat query diagnostic in weeks 3–4**: Submitting the same coordinates 
+  twice for F2 and F6 early would have confirmed observation noise before 
+  committing to exploitation strategies calibrated for deterministic functions.
+
+- **Scheduled global re-evaluation**: A mandatory UCB exploration query every 
+  four weeks regardless of current performance would have caught the F5 local 
+  optimum failure automatically rather than relying on competitor data to 
+  trigger the correction in week 10.
+
+- **F1 coarser grid coverage**: A simple 5x5 grid of the 2D space in weeks 
+  1–2 would have sampled near the a more optimal source and 
+  redirected the entire F1 strategy before eleven weeks were spent refining 
+  a secondary signal.
+
+**Limitations arising from the synthetic nature of the functions**
+
+The functions are simulations of real-world domains rather than true 
+real-world measurements. This means several limitations apply:
+
+- The noise characteristics (type, magnitude, distribution) are fixed by 
+  design rather than arising naturally from measurement uncertainty, which 
+  may not reflect the correlated or non-Gaussian noise common in real 
+  experimental settings.
+
+
+- The dynamic behaviour of F4 is a controlled simulation of non-stationarity 
+  rather than a genuine changing environment, which may underestimate the 
+  speed and severity of real landscape shifts in production systems.
+
+- True global optima are unknown for all functions. While peer comparison 
+  provided useful benchmarks for F1 and F5, confidence in global optimality 
+  cannot be formally established without access to the underlying function 
+  definitions.
+
+**Scalability to more serious or expensive problems**
+
+The core pipeline — LOO-validated surrogate selection, range validation, 
+plausibility checking, and function-specific acquisition function choice — 
+scales well to settings where queries are genuinely expensive, such as 
+laboratory experiments, clinical trials, or high-fidelity simulations. 
+The one-query-per-week constraint in this project mirrors exactly the kind 
+of budget scarcity those settings impose.
+
+The main scalability limitation is the GP's computational cost with 
+observation count. Beyond approximately 100 observations the standard GP 
+becomes impractical on consumer hardware, and approximations or 
+alternative surrogates would be required. The Dynamic BO region window 
+partially addresses this by limiting the fitting dataset to a relevant 
+subset, but a more principled sparse GP implementation would be needed 
+for production deployment.
+
+
 
 **Key references**
 
