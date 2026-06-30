@@ -85,6 +85,24 @@ Several advanced techniques were introduced as limitations of the standard GP be
 
 ---
 
+## Results
+
+The charts below show the best result achieved after each weekly query 
+across all eight functions, and a normalised comparison of convergence 
+speed.
+
+### Best Result Per Function Over Time
+![Best result achieved per function across 13 weeks](images/all_functions_progress.png)
+
+### Convergence Speed Comparison
+![Normalised convergence speed across all functions](images/convergence_comparison.png)
+
+*Note: F3 and F6 are maximisation-toward-zero functions — 
+higher (less negative) is better.*
+
+
+---
+
 ## Repository Structure
 
 ```
@@ -93,7 +111,7 @@ Several advanced techniques were introduced as limitations of the standard GP be
 ├── DATASHEET.md            — Dataset documentation (Gebru et al. 2018 framework)
 ├── MODEL_CARD.md           — Model documentation (Mitchell et al. 2019 framework)
 ├── notebooks/              — Weekly Jupyter notebooks with analysis and submissions
-├── scripts/                — Python scripts for each function by week
+├── images/                 — images generated to plot data
 └── data/                   — Input/output records by function
 ```
 
