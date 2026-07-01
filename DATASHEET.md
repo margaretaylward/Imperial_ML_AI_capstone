@@ -189,10 +189,10 @@ Yes, the dataset grows by 8 records per week until the end of week 13. After the
   optimum failure automatically rather than relying on competitor data to 
   trigger the correction in week 10.
 
-- **F1 coarser grid coverage**: A simple 5x5 grid of the 2D space in weeks 
-  1–2 would have sampled near the a more optimal source and 
-  redirected the entire F1 strategy before eleven weeks were spent refining 
-  a secondary signal.
+- **F1 coarser grid coverage**: A systematic grid of queries spread evenly across
+  the x1 and x2 dimensions in weeks 1–2, rather than relying on random sampling to
+  cover the space, would have guaranteed at least one observation near the true source 
+  location early enough to redirect the search
 
 **Limitations arising from the synthetic nature of the functions**
 
