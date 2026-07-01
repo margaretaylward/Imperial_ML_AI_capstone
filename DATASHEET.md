@@ -216,8 +216,8 @@ real-world measurements. This means several limitations apply:
 
 **Scalability to more serious or expensive problems**
 
-The core pipeline — LOO-validated surrogate selection, range validation, 
-plausibility checking, and function-specific acquisition function choice — 
+The core pipeline, LOO-validated surrogate selection, range validation, 
+plausibility checking, and function-specific acquisition function choice,
 scales well to settings where queries are genuinely expensive, such as 
 laboratory experiments, clinical trials, or high-fidelity simulations. 
 The one-query-per-week constraint in this project mirrors exactly the kind 
